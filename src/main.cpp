@@ -3,6 +3,8 @@ int last_millis{-5000};
 
 void command(String cmd);
 void sendMessage(char *number, char *message);
+void getMessage();
+void getGPS();
 
 #define ATI "ATI";
 #define SLEEP "AT+ENPWRSAVE";
@@ -25,13 +27,19 @@ void setup()
   //
   //
   //
+  // Setup SMS
   command("ATI");
   command("AT+CMEE=1");
   command("AT+CMGF=1");
   command("AT+CSCS=\"GSM\"");
+  // setup GPS
+  command("AT$MYGPSPWR=1");
 
-  delay(10000);
-  sendMessage("+919106594440", "heyyyyyyyyyyyyy shawty");
+  // sendMessage("+919106594440", "heyyyyyyyyyyyyy shawty");
+  delay(1000);
+  getMessage();
+  delay(1000);
+  getGPS();
 }
 
 void loop()
@@ -42,7 +50,7 @@ void loop()
     command(Serial.readString());
   }
 }
-
+// AT+CGNSPWR?
 void command(String cmd)
 {
   Serial.print("Sent Command: ");
@@ -61,15 +69,11 @@ void command(String cmd)
       }
       else
       {
-        Serial.println(".");
         last_millis = millis();
         count++;
       }
     }
   }
-  // AT+CMGS="+919106594440""hey"
-
-  Serial.println();
   Serial.println("Recieved Data: ");
 
   while (Serial2.available())
@@ -80,6 +84,16 @@ void command(String cmd)
   Serial.println();
 }
 
+void getMessage()
+{
+  command("AT+CMGL=\"ALL\"");
+}
+
+void getGPS()
+{
+  command("AT$MYGPSPOS=0");
+  // +CGNSINF: <enabled>,<fixstatus>,<utcdate>,<utctime>,<lat>,<ns>,<lon>,<ew>,<posfix>,<satellites>,<hdop>,<altitude>,<undulation>,<diffage>,<hdop>,<vdop>,<tdop>,<gnssmode>
+}
 void sendMessage(char *number, char *message)
 {
   String cmd = "AT+CMGS=\"" + String(number) + "\"";
