@@ -1,5 +1,6 @@
 #include <Arduino.h>
 int last_millis{-5000};
+int last_time_gps{};
 
 void command(String cmd);
 void sendMessage(char *number, char *message);
@@ -50,6 +51,11 @@ void loop()
   {
     command(Serial.readString());
   }
+  if (millis() - last_time_gps > 10000)
+  {
+    getGPS();
+    last_time_gps = millis();
+  }
 }
 // AT+CGNSPWR?
 void command(String cmd)
@@ -92,7 +98,7 @@ void getMessage()
 
 void getGPS()
 {
-  command("AT$MYGPSPOS=0");
+  command("AT$MYGPSPOS=6");
   // +CGNSINF: <enabled>,<fixstatus>,<utcdate>,<utctime>,<lat>,<ns>,<lon>,<ew>,<posfix>,<satellites>,<hdop>,<altitude>,<undulation>,<diffage>,<hdop>,<vdop>,<tdop>,<gnssmode>
 }
 void sendMessage(char *number, char *message)
