@@ -36,6 +36,7 @@ void setup()
   command("AT$MYGPSPWR=1");
 
   // sendMessage("+919106594440", "heyyyyyyyyyyyyy shawty");
+  command("AT+CSQ");
   delay(1000);
   getMessage();
   delay(1000);
