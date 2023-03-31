@@ -1,5 +1,12 @@
 #include <Arduino.h>
 #include <TinyGPSPlus.h>
+#include <WiFi.h>
+#define TINY_GSM_MODEM_SIM800
+
+#include <TinyGsmClient.h>
+
+
+
 int last_millis{-5000};
 int last_time_gps{};
 
@@ -13,42 +20,72 @@ static void printStr(const char *str, int len);
 static void printFloat(float val, bool valid, int len, int prec);
 static void printInt(unsigned long val, bool valid, int len);
 
-#define ATI "ATI";
-#define SLEEP "AT+ENPWRSAVE";
-#define SET_SMS "AT+CSMS=1";
-#define SMS_STORAGE 'AT+CPMS="SM"';
-#define SMS_MODE "AT+CMGF=1";
+// #define ATI "ATI";
+// #define SLEEP "AT+ENPWRSAVE";
+// #define SET_SMS "AT+CSMS=1";
+// #define SMS_STORAGE 'AT+CPMS="SM"';
+// #define SMS_MODE "AT+CMGF=1";
 
-// Serial.print(char(26));
+
 int count{0};
-// #define   "AT+CNMI: 2,1,0,0,0";
-// loaction
-// gsm messages trasescton start time rfid meter value;
 TinyGPSPlus gps;
 
+// TinyGsm modemGSM(Serial2);
+// TinyGsmClient gsmClient(modemGSM);
+
+// 10.127.172.62
+IPAddress gateway(10, 127, 172, 62);
 void setup()
 {
   // put your setup code here, to run once:
   Serial2.begin(115200);
   Serial.begin(115200);
   Serial.println("OK");
-  //
-  //
-  //
-  // Setup SMS
+
+
+  command("AT+CFUN=1,1"); 
+  delay(10000);
+  
   command("ATI");
   command("AT+CMEE=1");
-  command("AT+CMGF=1");
-  command("AT+CSCS=\"GSM\"");
-  // setup GPS
-  command("AT$MYGPSPWR=1");
+  command("AT+NETAPN=\"CMNET\",\"\",\"\"");
+
+  command("AT+CGDCONT=1,\"IP\",\"CMNET\"");
+  command("AT+XIIC=1");
+  command("AT+CGATT=1");
+  command("AT+NWCHANNEL=1");
+  command("AT+CGACT=1,1");
+  command("AT+HTTPPARA=url,\"www.neoway.com.cn/en/index.aspx\"");
+  command("AT+HTTPSETUP");
+  command("AT+HTTPACTION=0");
+
+
+
+   // Setup SMS
+  // command("AT+CMGF=1");
+  // command("AT+CSCS=\"GSM\"");
+
+  // // setup GPS
+  // command("AT$MYGPSPWR=1");
 
   // sendMessage("+919106594440", "heyyyyyyyyyyyyy shawty");
-  command("AT+CSQ");
-  delay(1000);
-  getMessage();
-  delay(1000);
-  getGPS();
+  // command("AT+CSQ");
+  // delay(1000);
+  // getMessage();
+  // delay(1000);
+  // getGPS();
+  
+  // Replace the IP address in the first argument with the IP address of the ESP32
+  // The second argument is the IP address of the Neoway N58 CA
+  // The third argument is the subnet mask
+  // The fourth argument is the gateway IP address
+
+
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(1000);
+  //   Serial.println("Connecting to internet...");
+  // }
+  // Serial.println("Connected to internet");
 }
 
 void loop()
@@ -58,11 +95,11 @@ void loop()
   {
     command(Serial.readString());
   }
-  if (millis() - last_time_gps > 10000)
-  {
-    getGPS();
-    last_time_gps = millis();
-  }
+  // if (millis() - last_time_gps > 10000)
+  // {
+  //   getGPS();
+  //   last_time_gps = millis();
+  // }
 }
 // AT+CGNSPWR?
 void command(String cmd)
